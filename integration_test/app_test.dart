@@ -6,6 +6,9 @@ import 'package:music_app/main.dart' as app;
 import 'package:integration_test/integration_test.dart';
 import 'package:music_app/presentation/pages/search_page.dart';
 import 'package:music_app/presentation/widgets/appbar_search_button.dart';
+import 'package:music_app/presentation/widgets/tite_description_widget.dart';
+
+final Finder buttonAppbarSearch = find.byType(AppbarSearchButton);
 
  OpenLastAlbumSearchResultPage(WidgetTester tester,String songName)
 async {
@@ -31,7 +34,6 @@ async {
 
 searchForAlbum(WidgetTester tester,String searchFieldText) async{
   await tester.pumpAndSettle();
-  final Finder buttonAppbarSearch = find.byType(AppbarSearchButton);
   await tester.tap(buttonAppbarSearch);
   await tester.pumpAndSettle();
   final Finder fieldSearch = find.byType(TextField);
@@ -43,16 +45,24 @@ searchForAlbum(WidgetTester tester,String searchFieldText) async{
   assert(resultList.isNotEmpty);
 }
 
+verifyAlbumDetailsPageDisplayed(WidgetTester tester) async{
+  await tester.pumpAndSettle();
+ final Finder titles = find.byType(TitleDescriptionWidget);
+  assert(tester.widgetList(titles).isNotEmpty);
+  await tester.pumpAndSettle();
+ }
+
 void main(){
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   const String searchFieldText="Eminem";
-  const String albumName ="Recovery";
+  const String albumName ="Park";
 
   testWidgets("Search functionality of Music app", (WidgetTester tester) async {
     app.main();
     await searchForAlbum(tester, searchFieldText);
     await OpenLastAlbumSearchResultPage(tester,albumName);
     await tapFirstFavouriteButton(tester);
+    await verifyAlbumDetailsPageDisplayed(tester);
 
   });
 
