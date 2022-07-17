@@ -49,6 +49,7 @@ class AlbumsWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     album.name ?? '',
+                    key: const ValueKey('AlbumWidgetText'),
                     style: Theme.of(context).textTheme.bodyText2?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
