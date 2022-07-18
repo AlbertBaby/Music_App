@@ -1,16 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:favorite_button/favorite_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:music_app/main.dart' as app;
 import 'package:integration_test/integration_test.dart';
 import 'package:music_app/presentation/pages/search_page.dart';
-import 'package:music_app/presentation/widgets/album_widget.dart';
 import 'package:music_app/presentation/widgets/appbar_search_button.dart';
 import 'package:music_app/presentation/widgets/tite_description_widget.dart';
-import 'dart:io';
 
-final Finder backButton = find.byType(AppBar);
+
+final Finder backButton = find.byTooltip("Back").last;
 final Finder buttonAppbarSearch = find.byType(AppbarSearchButton);
 
 
@@ -20,12 +18,14 @@ void main(){
   const String searchFieldText="Eminem";
   const String albumName ="Park";
 
-  testWidgets("Search functionality of Music app", (WidgetTester tester) async {
+  testWidgets("e2e test of Music app", (WidgetTester tester) async {
     app.main();
     await searchForAlbum(tester, searchFieldText);
     await OpenLastAlbumSearchResultPage(tester,albumName);
     await tapFirstFavouriteButton(tester);
     await verifyAlbumDetailsPageDisplayed(tester);
+    await clickOnTheBackButtonOnTop(tester);
+    await clickOnTheBackButtonOnTop(tester);
 
   });
 
@@ -47,13 +47,11 @@ async {
   await tester.tap(favouriteButton);
   await tester.pumpAndSettle();
   final Finder albumWidget = find.byKey(const ValueKey('AlbumWidgetText')).first;
+  String favAlbumName =find.descendant(of: albumWidget, matching: find.byType(RichText)).toString();
+  tester.printToConsole(favAlbumName);
   await tester.tap(albumWidget);
   await tester.pumpAndSettle();
-  await Process.run(
-    'adb',
-    <String>['shell', 'input', 'keyevent', 'KEYCODE_BACK'],
-    runInShell: true,
-  );
+  await tester.tap(backButton);
 }
 
 searchForAlbum(WidgetTester tester,String searchFieldText) async{
@@ -71,10 +69,19 @@ searchForAlbum(WidgetTester tester,String searchFieldText) async{
 
 verifyAlbumDetailsPageDisplayed(WidgetTester tester) async{
   await tester.pumpAndSettle();
+  final Finder albumWidget = find.byKey(const ValueKey('AlbumWidgetText')).first;
+  await tester.tap(albumWidget);
+  await tester.pumpAndSettle();
  final Finder titles = find.byType(TitleDescriptionWidget);
   expect(titles, findsWidgets);
   await tester.pumpAndSettle();
    tester.printToConsole("Assert Pass");
  }
+
+clickOnTheBackButtonOnTop(WidgetTester tester)
+async {
+  await tester.pumpAndSettle();
+  await tester.tap(backButton);
+}
 
 
